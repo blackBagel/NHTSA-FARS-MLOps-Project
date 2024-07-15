@@ -5,9 +5,11 @@ name = "pypi"
 
 [packages]
 pandas = "*"
-matplotlib = "*"
 
 [dev-packages]
+ipykernel = "*"
+jupyter = "*"
+matplotlib = "*"
 
 [requires]
 python_version = "3.11"
