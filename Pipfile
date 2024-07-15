@@ -10,6 +10,7 @@ pandas = "*"
 ipykernel = "*"
 jupyter = "*"
 matplotlib = "*"
+chardet = "*"
 
 [requires]
 python_version = "3.11"
