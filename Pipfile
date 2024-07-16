@@ -5,12 +5,14 @@ name = "pypi"
 
 [packages]
 pandas = "*"
+scikit-learn = "*"
 
 [dev-packages]
 ipykernel = "*"
 jupyter = "*"
 matplotlib = "*"
 chardet = "*"
+seaborn = "*"
 
 [requires]
 python_version = "3.11"
