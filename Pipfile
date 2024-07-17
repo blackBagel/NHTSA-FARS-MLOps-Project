@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 pandas = "*"
 scikit-learn = "*"
+mlflow = "2.14.3"
+google-cloud-storage = "*"
 
 [dev-packages]
 ipykernel = "*"
