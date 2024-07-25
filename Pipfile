@@ -8,6 +8,7 @@ pandas = "*"
 scikit-learn = "*"
 mlflow = "2.14.3"
 google-cloud-storage = "*"
+sklearn-pandas = "*"
 
 [dev-packages]
 ipykernel = "*"
