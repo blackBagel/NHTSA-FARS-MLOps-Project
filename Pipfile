@@ -9,6 +9,7 @@ scikit-learn = "*"
 mlflow = "2.14.3"
 google-cloud-storage = "*"
 sklearn-pandas = "*"
+cloudpickle = "*"
 
 [dev-packages]
 ipykernel = "*"
@@ -16,6 +17,7 @@ jupyter = "*"
 matplotlib = "*"
 chardet = "*"
 seaborn = "*"
+xgboost = "*"
 
 [requires]
 python_version = "3.11"
