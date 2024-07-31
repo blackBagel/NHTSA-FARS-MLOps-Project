@@ -5,11 +5,11 @@ name = "pypi"
 
 [packages]
 pandas = "*"
-scikit-learn = "*"
+scikit-learn = "1.5.1"
 mlflow = "2.14.3"
 google-cloud-storage = "*"
 sklearn-pandas = "*"
-cloudpickle = "*"
+cloudpickle = "3.0.0"
 
 [dev-packages]
 ipykernel = "*"
