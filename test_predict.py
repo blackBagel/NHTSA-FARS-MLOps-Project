@@ -1,6 +1,9 @@
 import requests
 
 passenger = {
+    'ST_CASE': 100001,
+    'VEH_NO': 1,
+    'PER_NO': 2,
     'VE_FORMS': 2,
     'STATE': 1,
     'COUNTY': 55,
