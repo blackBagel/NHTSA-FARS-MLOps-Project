@@ -4,14 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pandas = "*"
+pandas = "2.2.2"
 scikit-learn = "1.5.1"
 mlflow = "2.14.3"
-google-cloud-storage = "*"
-sklearn-pandas = "*"
+google-cloud-storage = "2.18.1"
+sklearn-pandas = "2.2.0"
 cloudpickle = "3.0.0"
-flask = "*"
-gunicorn = "*"
+flask = "3.0.3"
+gunicorn = "22.0.0"
 
 [dev-packages]
 ipykernel = "*"
@@ -22,4 +22,4 @@ seaborn = "*"
 xgboost = "*"
 
 [requires]
-python_version = "3.11"
+python_version = "3.11.9"
