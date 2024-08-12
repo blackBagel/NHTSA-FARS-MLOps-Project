@@ -163,3 +163,4 @@ cython_debug/
 
 # Ignoring the data files
 data/*
+secrets/*
