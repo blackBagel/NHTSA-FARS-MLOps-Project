@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  accident-injury-prediction-service:
+    image: accident-injury-prediction-service:v1
+    ports:
+      - "9696:9696"
+    volumes:
+      - ./secrets:/run/secrets:ro
+    restart: always
