@@ -42,7 +42,7 @@ datasets_dir="./data/datasets"
 mkdir -p "$datasets_dir"
 pushd "$datasets_dir"
 
-years=(2019 2021 2022)
+years=(2018 2019 2021)
 
 # Loop through the list and create a data dir per year
 for year in "${years[@]}"
@@ -54,7 +54,7 @@ do
     wget "https://static.nhtsa.gov/nhtsa/downloads/FARS/${year}/National/${ZIP_FILE}" -O "${output_file}"
     
     if [ -f "$output_file" ]; then
-        if [ "$year" -eq 2019 ]; then
+        if [ "$year" -le 2019 ]; then
             # Create a directory named after the year variable
             mkdir -p "$year"
             
