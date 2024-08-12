@@ -29,8 +29,8 @@ def process_files(year_dirs):
     return pd.concat(dfs, ignore_index=True)
 
 def save_data(df, start_date, end_date, filename):
-    filtered_data = filter_data(df, start_date, end_date)
-    filtered_data.drop(columns=['DATE'], inplace=True)  # Drop auxiliary columns
+    filtered_data = filter_data(df.copy(), start_date, end_date)
+    filtered_data = filtered_data.drop(columns=['DATE'])  # Drop auxiliary columns
     filtered_data.to_csv(filename, index=False)
 
 def main(): 
