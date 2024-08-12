@@ -17,7 +17,7 @@ def get_model_artifacts_location(run_id):
     if model_location is not None and model_labels_dict_location is not None:
         return model_location, model_labels_dict_location
 
-    bucket_path = os.getenv('BUCKET_PATH')
+    bucket_path = os.getenv('MLFLOW_BUCKET_PATH')
     experiment_id = os.getenv('MLFLOW_EXPERIMENT_ID')
     model_artifact_path = os.getenv('MODEL_ARTIFACT_PATH')
     model_labels_dict_file = os.getenv('MODEL_LABELS_DICT_FILE')
