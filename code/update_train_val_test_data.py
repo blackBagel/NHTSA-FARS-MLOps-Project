@@ -3,9 +3,14 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 DATA_FILE_NAME = 'person.csv'
-YEAR_DIRS = ['2021', '2022']
-DATASETS_DIR = '../data/datasets'
-MODEL_DATASETS_DIR = os.path.join(DATASETS_DIR, 'for_model')
+DATASETS_DIR_RELATIVE_PATH = 'data/datasets'
+
+def get_datasets_dir():
+    current_path = os.path.realpath(__file__)
+    parent_dir = os.path.dirname(os.path.dirname(current_path))
+    datasets_dir = os.path.join(parent_dir, DATASETS_DIR_RELATIVE_PATH)
+
+    return datasets_dir
 
 def load_and_process_csv(year, day, month):
     date_str = f"{year}-{month:02d}-{day:02d}"
@@ -16,11 +21,12 @@ def filter_data(df, start_date, end_date):
     df_copy.loc[:, 'DATE'] = df_copy.apply(lambda row: load_and_process_csv(row['YEAR'], row['DAY'], row['MONTH']), axis=1)
     return df_copy.loc[(df_copy['DATE'] >= start_date) & (df_copy['DATE'] < end_date), :].copy()
 
-def process_files(year_dirs):
+def process_files(datasets_dir, year_dirs):
     dfs = []
     file = DATA_FILE_NAME
+
     for year_dir in year_dirs:
-        file_path = os.path.join(DATASETS_DIR, year_dir, file)
+        file_path = os.path.join(datasets_dir, str(year_dir), file)
 
         if os.path.exists(file_path):
             df = pd.read_csv(file_path)
@@ -34,9 +40,6 @@ def save_data(df, start_date, end_date, filename):
     filtered_data.to_csv(filename, index=False)
 
 def main(): 
-    # Load and combine data from all directories
-    combined_data = process_files(YEAR_DIRS)
-    
     # Date ranges
     today = datetime.today()
     train_start_weeks_delta = 156 # 3 years + 2 weeks ago
@@ -53,11 +56,17 @@ def main():
     test_start = validation_end
     test_end = today - timedelta(weeks=test_end_weeks_delta)
     
+    # Load and combine data from all directories
+    datasets_dir = get_datasets_dir()
+    year_dirs = set([train_start.year, train_end.year, validation_start.year, validation_end.year, test_start.year, test_end.year])
+    combined_data = process_files(datasets_dir=datasets_dir, year_dirs=year_dirs)
+    
     # Save to files
+    model_datasets_dir = os.path.join(datasets_dir, 'for_model')
 
-    train_path = os.path.join(MODEL_DATASETS_DIR, 'train.csv')
-    validation_path = os.path.join(MODEL_DATASETS_DIR, 'validation.csv')
-    test_path = os.path.join(MODEL_DATASETS_DIR, 'test.csv')
+    train_path = os.path.join(model_datasets_dir, 'train.csv')
+    validation_path = os.path.join(model_datasets_dir, 'validation.csv')
+    test_path = os.path.join(model_datasets_dir, 'test.csv')
     save_data(combined_data, train_start, train_end, train_path)
     save_data(combined_data, validation_start, validation_end, validation_path)
     save_data(combined_data, test_start, test_end, test_path)
