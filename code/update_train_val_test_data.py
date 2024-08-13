@@ -62,7 +62,7 @@ def main():
     combined_data = process_files(datasets_dir=datasets_dir, year_dirs=year_dirs)
     
     # Save to files
-    model_datasets_dir = os.path.join(datasets_dir, 'for_model')
+    model_datasets_dir = os.path.join(datasets_dir, 'for_models')
 
     train_path = os.path.join(model_datasets_dir, 'train.csv')
     validation_path = os.path.join(model_datasets_dir, 'validation.csv')
