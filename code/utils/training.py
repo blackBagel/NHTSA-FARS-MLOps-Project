@@ -6,15 +6,32 @@ from sklearn.pipeline import Pipeline
 import re
 from evaluation import weighted_recall_score
 
+PROJECT_PATH = os.getenv('PROJECT_PATH')
+MODELS_DATASETS_PATH = os.getenv('MODELS_DATASETS_PATH',
+                                 os.path.join(PROJECT_PATH, 'data', 'datasets', 'for_models'),)
+TRAIN_FILENAME = os.getenv('TRAIN_FILENAME', 'train.csv')
+VALIDATION_FILENAME = os.getenv('VALIDATION_FILENAME', 'validation.csv')
+TEST_FILENAME = os.getenv('TEST_FILENAME', 'test.csv')
+
 # Will be set using the MLFLOW_TRACKING_URI 
 # mlflow.set_tracking_uri("http://127.0.0.1:5000")
-
 
 if os.getenv('MLFLOW_TRACKING_URI'):
     MLFLOW_EXPERIMENT_ID = os.getenv('MLFLOW_EXPERIMENT_ID')
     mlflow.set_experiment(experiment_id = MLFLOW_EXPERIMENT_ID)
 else:
     raise Exception("No mlflow tracking uri set!")
+
+def get_train_val_test_dfs():
+    train_path = os.path.join(MODELS_DATASETS_PATH, TRAIN_FILENAME)
+    val_path = os.path.join(MODELS_DATASETS_PATH, VALIDATION_FILENAME)
+    test_path = os.path.join(MODELS_DATASETS_PATH, TEST_FILENAME)
+
+    train_df = pd.read_csv(train_path, encoding='Windows-1252')
+    val_df = pd.read_csv(val_path, encoding='Windows-1252')
+    test_df = pd.read_csv(test_path, encoding='Windows-1252')
+
+    return train_df, val_df, test_df
 
 # Define a function to log the model and metrics to mlflow
 def log_pipeline_with_mlflow(model_name, model, model_params, preprocess_params, artifacts, X_train, X_val, y_train, y_val, model_artifact_path = 'model', is_validation_set_test = False):
