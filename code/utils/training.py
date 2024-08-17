@@ -1,9 +1,20 @@
+import os
 import pandas as pd
 import mlflow
 from sklearn_pandas import DataFrameMapper
 from sklearn.pipeline import Pipeline
 import re
 from evaluation import weighted_recall_score
+
+# Will be set using the MLFLOW_TRACKING_URI 
+# mlflow.set_tracking_uri("http://127.0.0.1:5000")
+
+
+if os.getenv('MLFLOW_TRACKING_URI'):
+    MLFLOW_EXPERIMENT_ID = os.getenv('MLFLOW_EXPERIMENT_ID')
+    mlflow.set_experiment(experiment_id = MLFLOW_EXPERIMENT_ID)
+else:
+    raise Exception("No mlflow tracking uri set!")
 
 # Define a function to log the model and metrics to mlflow
 def log_pipeline_with_mlflow(model_name, model, model_params, preprocess_params, artifacts, X_train, X_val, y_train, y_val, model_artifact_path = 'model', is_validation_set_test = False):
