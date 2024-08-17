@@ -1,7 +1,5 @@
 # from xgboost import XGBClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.pipeline import Pipeline
-from models_tracking import log_pipeline_with_mlflow
 
 # In[25]:
 
@@ -56,22 +54,3 @@ def get_possible_models_for_pipeline(model_pipe_step_name = 'classifier'):
     models = prefix_model_params(model_pipe_step_name, MODELS)
 
     return models
-
-# Train and log each model using a pipeline
-def train_and_log_pipelines(models, model_pipe_step_name, data_prep_steps, preprocessing_params, artifacts, X_train, X_val, y_train, y_val, is_validation_set_test = False):
-    for model_name, (model, model_params_combinations) in models.items():
-        for model_params_combination in model_params_combinations:
-            pipeline_steps = data_prep_steps.copy()
-            pipeline_steps.append((model_pipe_step_name, model))
-            pipeline = Pipeline(pipeline_steps)
-
-            log_pipeline_with_mlflow(model_name = model_name,
-                                    model = pipeline,
-                                    model_params = model_params_combination,
-                                    preprocess_params = preprocessing_params,
-                                    artifacts = artifacts,
-                                    X_train = X_train,
-                                    X_val = X_val,
-                                    y_train = y_train,
-                                    y_val = y_val,
-                                    is_validation_set_test=is_validation_set_test)

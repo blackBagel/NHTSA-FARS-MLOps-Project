@@ -1,3 +1,4 @@
+import pandas as pd
 from sklearn.metrics import recall_score
 import mlflow.pyfunc
 import numpy as np

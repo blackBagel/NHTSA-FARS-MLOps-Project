@@ -1,6 +1,3 @@
-import os
-import pandas as pd
-from sklearn_pandas import DataFrameMapper, gen_features
 from sklearn_pandas import DataFrameMapper, gen_features
 from sklearn.base import TransformerMixin
 
@@ -66,9 +63,6 @@ COLUMNS_FOR_MODEL = [column for column in INVESTIGATED_COLUMNS if column not in 
 # Again, we'll ignore cases where death is unknown and focus on categories 0,7 and 8
 # We barely have any "Died En Route" cases
 # So we'll combine values 7 & 8 value to a single `Died in accident` value with a key of 7
-
-DIED_VALUE = 7
-DIED_LABEL = 'Died in accident'
 
 # We'll create a new `accident_result` field that will be our prediction target and will be a combination of both `INJ_SEV` AND `DOA`
 def add_accident_result_columns(df, accident_result_column, accident_result_name_column, death_value = 7, death_label = 'Dies in accident'):
