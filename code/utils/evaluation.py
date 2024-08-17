@@ -6,6 +6,8 @@ from sklearn import metrics
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+EVALUATION_METRIC = 'weighted_recall'
+
 def weighted_recall_score(true_labels: pd.Series, predicted_labels: pd.Series) -> float:
     """
     Calculate the weighted average recall score of each possible value of the true labels,
