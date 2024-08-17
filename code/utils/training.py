@@ -60,7 +60,7 @@ def log_pipeline_with_mlflow(model_name, model, model_params, preprocess_params,
     None
     """
     
-    with mlflow.start_run():
+    with mlflow.start_run() as run:
         # Log the model type as a tag for easy filtering
         mlflow.set_tag(key = 'model_name', value = model_name)
 
@@ -102,6 +102,10 @@ def log_pipeline_with_mlflow(model_name, model, model_params, preprocess_params,
                 mlflow.log_dict(dictionary = artifact['object'], artifact_file = artifact['file_name'])
             elif artifact['type'] == 'file':
                 mlflow.log_artifact(local_path = artifact['local_path'], artifact_path = artifact['artifact_path'])
+
+        run_id = run.info.run_id
+    
+    return run_id
 
 
 # Train and log each model using a pipeline
@@ -292,6 +296,33 @@ def filter_dict_by_regex(input_dict, pattern):
     
     return matching_dict, non_matching_dict
 
+def retrain_pipeline(run, X_train, y_train, X_test, y_test, artifacts):
+    run_id = run.info.run_id
+    model_name = run.data.tags['model_name']
+    original_pipeline = load_pipeline_from_run(run_id, model_name)
+    
+    # Create a new pipeline with untrained steps and parameters
+    # new_pipeline = create_fresh_pipeline(original_pipeline)
+
+    # Retrieve the model parameters
+    pipeline_params, non_pipeline_params = filter_dict_by_regex(run.data.params, f'^\w+__')
+    
+    # Convert model params to their original types
+    pipeline_params = convert_params_to_original_types(pipeline_params, original_pipeline)
+    
+    # Retrain the new pipeline with the new data
+    new_run_id = log_pipeline_with_mlflow(model_name = model_name,
+                                            model = original_pipeline,
+                                            model_params = pipeline_params,
+                                            preprocess_params = non_pipeline_params,
+                                            artifacts = artifacts,
+                                            X_train = X_train,
+                                            X_val = X_test,
+                                            y_train = y_train,
+                                            y_val = y_test,
+                                            is_validation_set_test=True,)
+    
+    return new_run_id
 
 def retrain_top_pipelines(experiment_name, metric_name, top_n, is_higher_better, X_train, y_train, X_test, y_test, artifacts):
     """
@@ -312,27 +343,4 @@ def retrain_top_pipelines(experiment_name, metric_name, top_n, is_higher_better,
     top_runs = get_best_n_runs(experiment_name, metric_name, top_n, is_higher_better = is_higher_better)
 
     for run in top_runs:
-        run_id = run.info.run_id
-        model_name = run.data.tags['model_name']
-        original_pipeline = load_pipeline_from_run(run_id, model_name)
-        
-        # Create a new pipeline with untrained steps and parameters
-        new_pipeline = create_fresh_pipeline(original_pipeline)
-
-        # Retrieve the model parameters
-        pipeline_params, non_pipeline_params = filter_dict_by_regex(run.data.params, f'^\w+__')
-        
-        # Convert model params to their original types
-        pipeline_params = convert_params_to_original_types(pipeline_params, original_pipeline)
-        
-        # Retrain the new pipeline with the new data
-        log_pipeline_with_mlflow(model_name = model_name,
-                        model = new_pipeline,
-                        model_params = pipeline_params,
-                        preprocess_params = non_pipeline_params,
-                        artifacts = artifacts,
-                        X_train = X_train,
-                        X_val = X_test,
-                        y_train = y_train,
-                        y_val = y_test,
-                        is_validation_set_test=True,)
+        _ = retrain_pipeline(run, X_train, y_train, X_test, y_test, artifacts)
