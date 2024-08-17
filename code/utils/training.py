@@ -35,6 +35,31 @@ def get_train_val_test_dfs():
 
 # Define a function to log the model and metrics to mlflow
 def log_pipeline_with_mlflow(model_name, model, model_params, preprocess_params, artifacts, X_train, X_val, y_train, y_val, model_artifact_path = 'model', is_validation_set_test = False):
+    """
+    Logs a machine learning pipeline to MLflow, including model parameters, metrics, and artifacts.
+
+    Args:
+    model_name (str): Name of the model being logged (used as a tag in MLflow).
+    model (Pipeline): The machine learning pipeline containing preprocessing and model steps.
+    model_params (dict): Dictionary of hyperparameters to set in the model before training.
+    preprocess_params (dict): Dictionary of parameters related to the preprocessing steps in the pipeline.
+    artifacts (list of dicts): List of artifacts to log with the model in MLflow, where each artifact dictionary contains:
+        - 'type': Type of artifact ('dict' or 'file').
+        - 'object': The dictionary object to log (if type is 'dict').
+        - 'file_name': The file name for the logged dictionary (if type is 'dict').
+        - 'local_path': Path to the file to log (if type is 'file').
+        - 'artifact_path': Path within the artifact store where the file will be stored (if type is 'file').
+    X_train (DataFrame or array): Training feature data.
+    X_val (DataFrame or array): Validation feature data.
+    y_train (Series or array): Training labels.
+    y_val (Series or array): Validation labels.
+    model_artifact_path (str, default='model'): Path within the MLflow artifact store to save the model.
+    is_validation_set_test (bool, default=False): Flag indicating whether the validation set should be used as a test set for final evaluation.
+
+    Returns:
+    None
+    """
+    
     with mlflow.start_run():
         # Log the model type as a tag for easy filtering
         mlflow.set_tag(key = 'model_name', value = model_name)
@@ -81,12 +106,39 @@ def log_pipeline_with_mlflow(model_name, model, model_params, preprocess_params,
 
 # Train and log each model using a pipeline
 def train_and_log_pipelines(models, model_pipe_step_name, data_prep_steps, preprocessing_params, artifacts, X_train, X_val, y_train, y_val, is_validation_set_test = False):
+    """
+    Trains multiple machine learning models with different hyperparameter combinations, constructs pipelines, and logs the results to MLflow.
+
+    Args:
+    models (dict): Dictionary where keys are model names and values are tuples containing a model instance and a list of hyperparameter dictionaries.
+    model_pipe_step_name (str): Name to assign to the model step in the pipeline.
+    data_prep_steps (list of tuples): List of tuples representing the preprocessing steps in the pipeline.
+    preprocessing_params (dict): Dictionary containing parameters specific to preprocessing steps.
+    artifacts (dict): Dictionary of artifacts (e.g., feature names, preprocessing objects) to log with the model in MLflow.
+    X_train (DataFrame or array): Training feature data.
+    X_val (DataFrame or array): Validation feature data.
+    y_train (Series or array): Training labels.
+    y_val (Series or array): Validation labels.
+    is_validation_set_test (bool, default=False): Flag indicating whether the validation set should also be used as a test set for final evaluation.
+
+    Returns:
+    None
+    """
+    
+    # Iterate over each model in the models dictionary
     for model_name, (model, model_params_combinations) in models.items():
+        # Iterate over each hyperparameter combination for the current model
         for model_params_combination in model_params_combinations:
+            # Copy the data preprocessing steps to avoid mutating the original list
             pipeline_steps = data_prep_steps.copy()
+            
+            # Append the model and its step name to the pipeline steps
             pipeline_steps.append((model_pipe_step_name, model))
+            
+            # Create the pipeline with the combined preprocessing and model steps
             pipeline = Pipeline(pipeline_steps)
 
+            # Log the pipeline, model, and training details with MLflow
             log_pipeline_with_mlflow(model_name = model_name,
                                     model = pipeline,
                                     model_params = model_params_combination,
@@ -255,7 +307,7 @@ def retrain_top_pipelines(experiment_name, metric_name, top_n, is_higher_better,
     y_test (pd.Series): The test set labels.
 
     Returns:
-    A list of retrained pipelines.
+    None
     """
     top_runs = get_best_n_runs(experiment_name, metric_name, top_n, is_higher_better = is_higher_better)
 
