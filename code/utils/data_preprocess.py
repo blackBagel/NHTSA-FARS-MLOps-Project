@@ -40,6 +40,36 @@ CATEGORY_LABEL_COLUMNS = ['STATENAME', 'INJ_SEV', 'INJ_SEVNAME',  'DOA', 'DOANAM
 COLUMNS_NOT_FOR_MODEL = CATEGORY_LABEL_COLUMNS + INDEX_COLUMNS
 COLUMNS_FOR_MODEL = [column for column in INVESTIGATED_COLUMNS if column not in COLUMNS_NOT_FOR_MODEL]
 
+# #### Dropping irrelevant injury categories
+# 
+# The dataset user manual states these are the possible values for the injury severity field (`INJ_SEV`):
+# 
+# - 0 - No Apparent Injury
+# - 1 - Possible Injury
+# - 2 - Suspected Minor Injury
+# - 3 - Suspected Serious Injury
+# - 4 - Fatal Injury 
+# - 5 - Injured, Severity Unknown
+# - 6 - Died Prior to Crash
+# - 9 - Unknown/Not Reported 
+# 
+# Since we want to teach our model to predict a specific injury severity, we'll only use categories 0-4
+# 
+# In addition, we'll consider death as another type of injury. </br>
+# The user manual describes the column detailing death (`DOA`) as such:
+# 
+# - 0 Not Applicable 
+# - 7 Died at Scene
+# - 8 Died En Route (to a hospital)
+# - 9 Unknown
+# 
+# Again, we'll ignore cases where death is unknown and focus on categories 0,7 and 8
+# We barely have any "Died En Route" cases
+# So we'll combine values 7 & 8 value to a single `Died in accident` value with a key of 7
+
+DIED_VALUE = 7
+DIED_LABEL = 'Died in accident'
+
 # We'll create a new `accident_result` field that will be our prediction target and will be a combination of both `INJ_SEV` AND `DOA`
 def add_accident_result_columns(df, accident_result_column, accident_result_name_column, death_value = 7, death_label = 'Dies in accident'):
     """

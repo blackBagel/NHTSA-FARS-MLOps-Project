@@ -1,46 +1,60 @@
 import pandas as pd
 from sklearn.metrics import recall_score
+import mlflow 
 
-def weighted_recall_score(true_labels: pd.Series, predicted_labels: pd.Series) -> float:
-    """
-    Calculate the weighted average recall score of each possible value of the true labels,
-    where the weight of each group is the value of the true label.
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
 
-    Args:
-    - true_labels (pd.Series): Series of true labels.
-    - predicted_labels (pd.Series): Series of predicted labels.
+MLFLOW_EXPERIMENT_NAME = "NHTSA FARS Injury prediction"
+mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
 
-    Returns:
-    - float: Weighted average recall score.
-    """
-    # Ensure the input series have the same length
-    assert len(true_labels) == len(predicted_labels), "True and predicted labels must have the same length."
-    
-    # Get unique values in true labels
-    unique_labels = true_labels.unique()
-    
-    # Initialize variables to calculate weighted recall
-    total_weight = 0
-    weighted_recall_sum = 0
-    
-    # Calculate recall for each unique label and compute weighted sum
-    for label in unique_labels:
-        # Create boolean masks for the current label
-        true_mask = (true_labels == label)
-        evaluated_true_labels = true_labels[true_mask]
-        evaluated_pred_labels = predicted_labels[true_mask]
+# Define a function to log the model and metrics to mlflow
+def log_pipeline_with_mlflow(model_name, model, model_params, preprocess_params, artifacts, X_train, X_val, y_train, y_val, model_artifact_path = 'model', is_validation_set_test = False):
+    with mlflow.start_run():
+        # Log the model type as a tag for easy filtering
+        mlflow.set_tag(key = 'model_name', value = model_name)
+
+        # Log preprocessing parameters
+        mlflow.log_params(preprocess_params)
         
-        # Calculate recall for the current label
-        recall = recall_score(evaluated_true_labels, evaluated_pred_labels, average="micro")
+        # Log model parameters
+        mlflow.log_params(model_params)
+
+        # Set the parameters
+        model.set_params(**model_params)
         
-        # Calculate the weight for the current label
-        weight = int(label)
+        # Fit the model
+        model.fit(X_train, y_train)
         
-        # Accumulate weighted recall and total weight
-        weighted_recall_sum += recall * weight
-        total_weight += weight
-    
-    # Calculate weighted average recall
-    weighted_avg_recall = weighted_recall_sum / total_weight if total_weight != 0 else 0
-    
-    return weighted_avg_recall
+        # Predict and calculate the wighted recall score for the training set
+        y_train_pred = model.predict(X_train)
+        train_weighted_recall = weighted_recall_score(y_train, y_train_pred)
+        mlflow.log_metric('train_weighted_recall', train_weighted_recall)
+
+        # Predict and calculate the wighted recall score for the validation set
+        y_val_pred = model.predict(X_val)
+        val_weighted_recall = weighted_recall_score(y_val, y_val_pred)
+
+        if not is_validation_set_test:
+            mlflow.log_metric('val_weighted_recall', val_weighted_recall)
+        else:
+            mlflow.log_metric('test_weighted_recall', val_weighted_recall)
+        
+        # Log the model
+        if model_name == "XGBClassifier":
+            mlflow.xgboost.log_model(model, model_artifact_path)
+        else:
+            mlflow.sklearn.log_model(model, model_artifact_path)
+
+        # Log the artifacts
+        for artifact in artifacts:
+            if artifact['type'] == 'dict':
+                mlflow.log_dict(dictionary = artifact['object'], artifact_file = artifact['file_name'])
+            elif artifact['type'] == 'file':
+                mlflow.log_artifact(local_path = artifact['local_path'], artifact_path = artifact['artifact_path'])
+
+
+# We want to get the best models according tot he validation set metrics </br>
+# And train them from scratch on the train and validation set so that we can evaluate them on the validation set
+# 
+# For this purpose we created several helper functions
+
