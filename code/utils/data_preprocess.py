@@ -11,6 +11,7 @@ INVESTIGATED_COLUMNS = [
     'COUNTY',
     'DAY',
     'MONTH',
+    'YEAR',
     'HOUR',
     'AGE',
     'SEX',
@@ -30,7 +31,8 @@ INVESTIGATED_COLUMNS = [
 INDEX_COLUMNS = [
     'ST_CASE',
     'VEH_NO',
-    'PER_NO'
+    'PER_NO',
+    'YEAR'
 ]
 
 CATEGORY_LABEL_COLUMNS = ['STATENAME', 'INJ_SEV', 'INJ_SEVNAME',  'DOA', 'DOANAME']
@@ -124,7 +126,7 @@ def make_id_label_dict(df, id_column, label_column):
     
     return id_label_dict
 
-def prep_training_datasets(df, index_columns):
+def prep_training_datasets(df, index_columns = INDEX_COLUMNS):
     """
     Creates a df containing only rows our model can train on,
     a corresponding target Series for supervised learning,
@@ -134,7 +136,7 @@ def prep_training_datasets(df, index_columns):
     df (pd.DataFrame): The input DataFrame containing the raw data
     including the columns necessary for creating the target column
     index_columns (list): a list of the columns creating together 
-    a row unique identifier
+    a unique row identifier
 
     Returns:
     train_df (pd.DataFrame): A df containing only rows our model can train on
