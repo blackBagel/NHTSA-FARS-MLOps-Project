@@ -22,6 +22,7 @@ def retrain_all_models():
     models = ready_pipelines.get_possible_models_for_pipeline()
 
     train_and_log_pipelines(models = models,
+                            model_pipe_step_name = ready_pipelines.MODEL_PIPE_STEP_NAME,
                             data_prep_steps = data_prep_steps,
                             preprocessing_params = preprocessing_params,
                             artifacts = train_artifacts,
@@ -29,7 +30,7 @@ def retrain_all_models():
                             X_val = val_df,
                             y_train = train_target_df,
                             y_val = val_target_df,
-                            is_validation_set_val = False)
+                            is_validation_set_test = False)
 
 if __name__ == "__main__":
     retrain_all_models()

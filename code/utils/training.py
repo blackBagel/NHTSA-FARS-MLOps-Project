@@ -4,7 +4,7 @@ import mlflow
 from sklearn_pandas import DataFrameMapper
 from sklearn.pipeline import Pipeline
 import re
-from evaluation import weighted_recall_score
+from utils.evaluation import weighted_recall_score
 
 PROJECT_PATH = os.getenv('PROJECT_PATH')
 MODELS_DATASETS_PATH = os.getenv('MODELS_DATASETS_PATH',
@@ -57,7 +57,7 @@ def log_pipeline_with_mlflow(model_name, model, model_params, preprocess_params,
     is_validation_set_test (bool, default=False): Flag indicating whether the validation set should be used as a test set for final evaluation.
 
     Returns:
-    None
+    Logged mlflow run_id
     """
     
     with mlflow.start_run() as run:

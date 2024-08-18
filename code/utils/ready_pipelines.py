@@ -1,7 +1,7 @@
 # from xgboost import XGBClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
-# In[25]:
+MODEL_PIPE_STEP_NAME = "classifier"
 
 def prefix_model_params(model_pipe_step_name, models):
     """
@@ -50,7 +50,7 @@ MODELS = {
     # ]),
 }
 
-def get_possible_models_for_pipeline(model_pipe_step_name = 'classifier'):
-    models = prefix_model_params(model_pipe_step_name, MODELS)
+def get_possible_models_for_pipeline():
+    models = prefix_model_params(MODEL_PIPE_STEP_NAME, MODELS)
 
     return models
