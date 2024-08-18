@@ -48,7 +48,7 @@ def save_data(df, start_date, end_date, filename, logger, dataset_name):
 
 
 @flow(retries=3, retry_delay_seconds=60)
-def main(): 
+def update_model_datsets(): 
     # Date ranges
     today = datetime.today()
     train_start_weeks_delta = 156 # 3 years + 2 weeks ago
@@ -83,7 +83,7 @@ def main():
     save_data.submit(combined_data, test_start, test_end, test_path, logger, 'test')
 
 if __name__ == "__main__":
-    main.serve(
+    update_model_datsets.serve(
         name="model_datasets_updater",
         cron="0 1 * * 1", # At 01:00 on Mondays
         tags=["data", "scheduled"],
