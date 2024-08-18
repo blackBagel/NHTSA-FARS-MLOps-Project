@@ -108,8 +108,7 @@ def train_champion(champion_model_name, model_alias):
     champion_run_id = get_registered_model_run_id(champion_model_name, model_alias = model_alias)
     champion_run = get_run_object(champion_run_id)
 
-    # retrained_on_train_champion_run_id, _ = retrain_model_by_run(champion_run, train_df, val_df, is_validation_set_test = False)
-    retrained_on_train_champion_run_id = '05232677c45f4371b3bb3a3204b1ac13'
+    retrained_on_train_champion_run_id, _ = retrain_model_by_run(champion_run, train_df, val_df, is_validation_set_test = False)
 
     challenger_run = monitor_champion_performance(retrained_on_train_champion_run_id)
 
