@@ -1,5 +1,4 @@
-import os
-import pandas as pd
+from prefect import flow
 import utils.data_preprocess as data_prep
 from utils.training import get_train_val_test_dfs, train_and_log_pipelines
 from utils import ready_pipelines
@@ -11,6 +10,7 @@ from utils import ready_pipelines
 
 #     return models_datasets_dir
 
+@flow(retries=3, retry_delay_seconds=60)
 def retrain_all_models():
     train_df, val_df, _ = get_train_val_test_dfs()
 
@@ -33,4 +33,9 @@ def retrain_all_models():
                             is_validation_set_test = False)
 
 if __name__ == "__main__":
-    retrain_all_models()
+    retrain_all_models.serve(
+        name="candidate_models_train_deployment",
+        cron="0 3 * * 1", # At 03:00 AM on Mondays
+        tags=["models", "scheduled"],
+        description="Responsible for training all the possible candidate models on the training data",
+    )
