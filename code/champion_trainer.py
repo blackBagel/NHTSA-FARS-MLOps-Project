@@ -79,3 +79,6 @@ def train_champion(champion_model_name, model_alias):
     
     register_model(new_run_id, champion_model_name, model_alias, train_labels_dict)
     # retrained_champion_run = get_run_object(new_run_id)
+
+if __name__ == "__main__":
+    train_champion('starter_notebook_model', "Champion")

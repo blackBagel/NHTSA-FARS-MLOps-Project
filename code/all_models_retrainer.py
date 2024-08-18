@@ -31,3 +31,5 @@ def retrain_all_models():
                             y_val = val_target_df,
                             is_validation_set_val = False)
 
+if __name__ == "__main__":
+    retrain_all_models()
