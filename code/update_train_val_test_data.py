@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 from datetime import datetime, timedelta
+from prefect import flow, task, get_run_logger
+from prefect.tasks import task_input_hash
 
 DATA_FILE_NAME = 'person.csv'
 DATASETS_DIR_RELATIVE_PATH = 'data/datasets'
@@ -34,11 +36,18 @@ def process_files(datasets_dir, year_dirs):
             dfs.append(df)
     return pd.concat(dfs, ignore_index=True)
 
-def save_data(df, start_date, end_date, filename):
+@task(cache_key_fn=task_input_hash, 
+      cache_expiration=timedelta(hours=1),
+      )
+def save_data(df, start_date, end_date, filename, logger, dataset_name):
     filtered_data = filter_data(df.copy(), start_date, end_date)
     filtered_data = filtered_data.drop(columns=['DATE'])  # Drop auxiliary columns
     filtered_data.to_csv(filename, index=False)
 
+    logger.info(f"Saved the {dataset_name} dataset file")
+
+
+@flow(retries=3, retry_delay_seconds=60)
 def main(): 
     # Date ranges
     today = datetime.today()
@@ -67,9 +76,16 @@ def main():
     train_path = os.path.join(model_datasets_dir, 'train.csv')
     validation_path = os.path.join(model_datasets_dir, 'validation.csv')
     test_path = os.path.join(model_datasets_dir, 'test.csv')
-    save_data(combined_data, train_start, train_end, train_path)
-    save_data(combined_data, validation_start, validation_end, validation_path)
-    save_data(combined_data, test_start, test_end, test_path)
+    logger = get_run_logger()
+
+    save_data.submit(combined_data, train_start, train_end, train_path, logger, 'train')
+    save_data.submit(combined_data, validation_start, validation_end, validation_path, logger, 'validation')
+    save_data.submit(combined_data, test_start, test_end, test_path, logger, 'test')
 
 if __name__ == "__main__":
-    main()
+    main.serve(
+        name="model_datasets_updater",
+        cron="0 1 * * 1", # At 01:00 on Mondays
+        tags=["data", "scheduled"],
+        description="Updates the datasets models will be trained on",
+    )
