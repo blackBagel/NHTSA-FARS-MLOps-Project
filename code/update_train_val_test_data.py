@@ -82,10 +82,10 @@ def update_model_datsets():
     save_data.submit(combined_data, validation_start, validation_end, validation_path, logger, 'validation')
     save_data.submit(combined_data, test_start, test_end, test_path, logger, 'test')
 
-if __name__ == "__main__":
-    update_model_datsets.serve(
-        name="model_datasets_updater",
-        cron="0 1 * * 1", # At 01:00 on Mondays
-        tags=["data", "scheduled"],
-        description="Updates the datasets models will be trained on",
-    )
+# if __name__ == "__main__":
+#     update_model_datsets.serve(
+#         name="model_datasets_updater",
+#         cron="0 1 * * 1", # At 01:00 on Mondays
+#         tags=["data", "scheduled"],
+#         description="Updates the datasets models will be trained on",
+#     )

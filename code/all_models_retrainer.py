@@ -32,10 +32,10 @@ def retrain_all_models():
                             y_val = val_target_df,
                             is_validation_set_test = False)
 
-if __name__ == "__main__":
-    retrain_all_models.serve(
-        name="candidate_models_train_deployment",
-        cron="0 3 * * 1", # At 03:00 AM on Mondays
-        tags=["models", "scheduled"],
-        description="Responsible for training all the possible candidate models on the training data",
-    )
+# if __name__ == "__main__":
+#     retrain_all_models.serve(
+#         name="candidate_models_train_deployment",
+#         cron="0 3 * * 1", # At 03:00 AM on Mondays
+#         tags=["models", "scheduled"],
+#         description="Responsible for training all the possible candidate models on the training data",
+#     )

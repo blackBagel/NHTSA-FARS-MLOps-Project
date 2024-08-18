@@ -141,10 +141,10 @@ def train_champion(champion_model_name: str = CHAMPION_MODEL_NAME, registered_mo
 
     set_served_model_env_file(retrained_champion_run_id)
 
-if __name__ == "__main__":
-    train_champion.serve(
-        name="champion_model_retrain_deployment",
-        cron="0 4 * * 1", # At 03:00 AM on Mondays
-        tags=["models", "scheduled"],
-        description="Responsible for retraining the champion model on updated data",
-    )
+# if __name__ == "__main__":
+#     train_champion.serve(
+#         name="champion_model_retrain_deployment",
+#         cron="0 4 * * 1", # At 03:00 AM on Mondays
+#         tags=["models", "scheduled"],
+#         description="Responsible for retraining the champion model on updated data",
+#     )
