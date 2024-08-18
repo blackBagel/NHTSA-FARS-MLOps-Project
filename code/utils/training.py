@@ -5,6 +5,9 @@ from sklearn_pandas import DataFrameMapper
 from sklearn.pipeline import Pipeline
 import re
 from utils.evaluation import weighted_recall_score, EVALUATION_METRIC
+from prefect import flow, task, get_run_logger
+from prefect.tasks import task_input_hash
+from datetime import timedelta
 
 PROJECT_PATH = os.getenv('PROJECT_PATH')
 MODELS_DATASETS_PATH = os.getenv('MODELS_DATASETS_PATH',
@@ -33,7 +36,10 @@ def get_train_val_test_dfs():
 
     return train_df, val_df, test_df
 
-# Define a function to log the model and metrics to mlflow
+
+@task(cache_key_fn=task_input_hash, 
+      cache_expiration=timedelta(hours=1),
+      )
 def log_pipeline_with_mlflow(model_name, model, model_params, preprocess_params, artifacts, X_train, X_val, y_train, y_val, model_artifact_path = 'model', is_validation_set_test = False):
     """
     Logs a machine learning pipeline to MLflow, including model parameters, metrics, and artifacts.
@@ -108,7 +114,7 @@ def log_pipeline_with_mlflow(model_name, model, model_params, preprocess_params,
     return run_id
 
 
-# Train and log each model using a pipeline
+@flow(retries=3, retry_delay_seconds=600)
 def train_and_log_pipelines(models, model_pipe_step_name, data_prep_steps, preprocessing_params, artifacts, X_train, X_val, y_train, y_val, is_validation_set_test = False):
     """
     Trains multiple machine learning models with different hyperparameter combinations, constructs pipelines, and logs the results to MLflow.
@@ -128,7 +134,9 @@ def train_and_log_pipelines(models, model_pipe_step_name, data_prep_steps, prepr
     Returns:
     None
     """
-    
+    logger = get_run_logger()
+    logger.info("Starting training of all sent models")
+
     # Iterate over each model in the models dictionary
     for model_name, (model, model_params_combinations) in models.items():
         # Iterate over each hyperparameter combination for the current model
@@ -154,6 +162,9 @@ def train_and_log_pipelines(models, model_pipe_step_name, data_prep_steps, prepr
                                     y_val = y_val,
                                     is_validation_set_test=is_validation_set_test)
 
+@task(cache_key_fn=task_input_hash, 
+      cache_expiration=timedelta(hours=1),
+      )
 def get_best_n_runs(experiment_name = None, experiment_id = None, metric_name = EVALUATION_METRIC, n=3, is_higher_better = True, filter_string = "attributes.run_id != '1'"):
     """
     Retrieve the top n runs based on a specified metric.
@@ -270,7 +281,6 @@ def convert_params_to_original_types(params, pipeline):
     converted_params = {}
     
     for param_name, value in params.items():
-        # param_name = key.split("__")[-1]
         if param_name in param_types:
             param_type = param_types[param_name]
             converted_params[param_name] = param_type(value)
@@ -308,6 +318,8 @@ def retrain_pipeline(run, X_train, y_train, X_val, y_val, artifacts, is_validati
     original_pipeline = load_pipeline_from_run(run_id, model_name)
     
     # Create a new pipeline with untrained steps and parameters
+    # I currently suspect this is not necessary 
+    # since the pipeline fit func trains a model from scratch regardless of its' previous step
     # new_pipeline = create_fresh_pipeline(original_pipeline)
 
     # Retrieve the model parameters
