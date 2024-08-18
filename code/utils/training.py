@@ -4,7 +4,7 @@ import mlflow
 from sklearn_pandas import DataFrameMapper
 from sklearn.pipeline import Pipeline
 import re
-from utils.evaluation import weighted_recall_score
+from utils.evaluation import weighted_recall_score, EVALUATION_METRIC
 
 PROJECT_PATH = os.getenv('PROJECT_PATH')
 MODELS_DATASETS_PATH = os.getenv('MODELS_DATASETS_PATH',
@@ -154,7 +154,7 @@ def train_and_log_pipelines(models, model_pipe_step_name, data_prep_steps, prepr
                                     y_val = y_val,
                                     is_validation_set_test=is_validation_set_test)
 
-def get_best_n_runs(experiment_name, metric_name, n=3, is_higher_better = True):
+def get_best_n_runs(experiment_name = None, experiment_id = None, metric_name = EVALUATION_METRIC, n=3, is_higher_better = True, filter_string = "attributes.run_id != '1'"):
     """
     Retrieve the top n runs based on a specified metric.
 
@@ -167,14 +167,20 @@ def get_best_n_runs(experiment_name, metric_name, n=3, is_higher_better = True):
     List of run info of the top n runs.
     """
     client = mlflow.tracking.MlflowClient()
-    experiment = client.get_experiment_by_name(experiment_name)
+
+    if experiment_id:
+        searched_experiment_id = experiment_id
+    elif experiment_name:
+        experiment = client.get_experiment_by_name(experiment_name)
+        searched_experiment_id = experiment.experiment_id
+
     sort_order = 'DESC' if is_higher_better else 'ASC'
 
     runs = client.search_runs(
-        experiment_ids=[experiment.experiment_id],
+        experiment_ids=[searched_experiment_id],
         order_by=[f"metrics.{metric_name} {sort_order}"],
         max_results=n,
-        filter_string="attributes.status = 'FINISHED'"
+        filter_string=f"{filter_string} AND attributes.status = 'FINISHED'"
     )
     return runs
 
@@ -296,7 +302,7 @@ def filter_dict_by_regex(input_dict, pattern):
     
     return matching_dict, non_matching_dict
 
-def retrain_pipeline(run, X_train, y_train, X_test, y_test, artifacts):
+def retrain_pipeline(run, X_train, y_train, X_val, y_val, artifacts, is_validation_set_test = True):
     run_id = run.info.run_id
     model_name = run.data.tags['model_name']
     original_pipeline = load_pipeline_from_run(run_id, model_name)
@@ -317,10 +323,10 @@ def retrain_pipeline(run, X_train, y_train, X_test, y_test, artifacts):
                                             preprocess_params = non_pipeline_params,
                                             artifacts = artifacts,
                                             X_train = X_train,
-                                            X_val = X_test,
+                                            X_val = X_val,
                                             y_train = y_train,
-                                            y_val = y_test,
-                                            is_validation_set_test=True,)
+                                            y_val = y_val,
+                                            is_validation_set_test = is_validation_set_test,)
     
     return new_run_id
 

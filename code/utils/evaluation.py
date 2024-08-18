@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 EVALUATION_METRIC = 'weighted_recall'
+EVALUATION_METRIC_SIGNIFICANT_DIFF = 0.05
 
 def weighted_recall_score(true_labels: pd.Series, predicted_labels: pd.Series) -> float:
     """
