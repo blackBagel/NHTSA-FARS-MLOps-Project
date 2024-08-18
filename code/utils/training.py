@@ -115,13 +115,13 @@ def log_pipeline_with_mlflow(model_name, model, model_params, preprocess_params,
 
 
 @flow(retries=3, retry_delay_seconds=600)
-def train_and_log_pipelines(models, model_pipe_step_name, data_prep_steps, preprocessing_params, artifacts, X_train, X_val, y_train, y_val, is_validation_set_test = False):
+def train_and_log_pipelines(models, pipe_model_step_name, data_prep_steps, preprocessing_params, artifacts, X_train, X_val, y_train, y_val, is_validation_set_test = False):
     """
     Trains multiple machine learning models with different hyperparameter combinations, constructs pipelines, and logs the results to MLflow.
 
     Args:
     models (dict): Dictionary where keys are model names and values are tuples containing a model instance and a list of hyperparameter dictionaries.
-    model_pipe_step_name (str): Name to assign to the model step in the pipeline.
+    pipe_model_step_name (str): Name to assign to the model step in the pipeline.
     data_prep_steps (list of tuples): List of tuples representing the preprocessing steps in the pipeline.
     preprocessing_params (dict): Dictionary containing parameters specific to preprocessing steps.
     artifacts (dict): Dictionary of artifacts (e.g., feature names, preprocessing objects) to log with the model in MLflow.
@@ -145,7 +145,7 @@ def train_and_log_pipelines(models, model_pipe_step_name, data_prep_steps, prepr
             pipeline_steps = data_prep_steps.copy()
             
             # Append the model and its step name to the pipeline steps
-            pipeline_steps.append((model_pipe_step_name, model))
+            pipeline_steps.append((pipe_model_step_name, model))
             
             # Create the pipeline with the combined preprocessing and model steps
             pipeline = Pipeline(pipeline_steps)
