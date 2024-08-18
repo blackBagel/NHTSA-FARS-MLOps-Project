@@ -7,4 +7,5 @@ services:
       - "9696:9696"
     volumes:
       - ./secrets:/run/secrets:ro
+    env_file: served_model_env_vars
     restart: always

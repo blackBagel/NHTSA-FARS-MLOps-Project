@@ -1,14 +1,15 @@
+import os
 import pandas as pd
 import mlflow
 from mlflow.tracking import MlflowClient
 import utils.data_preprocess as data_prep
-from utils.training import get_train_val_test_dfs, MLFLOW_EXPERIMENT_ID
-from utils.training import retrain_pipeline, get_best_n_runs
+from utils.training import get_train_val_test_dfs, retrain_pipeline, get_best_n_runs, MLFLOW_EXPERIMENT_ID, PROJECT_PATH
 import utils.evaluation as model_eval
 from datetime import datetime, timedelta
 import time
 
 mlflow_client = MlflowClient()
+SERVED_MODEL_ENV_FILE_PATH = os.path.join(PROJECT_PATH, 'served_model_env_vars')
 
 def get_registered_model_run_id(model_name, model_alias = None, model_version = None):
     if model_alias:
@@ -87,6 +88,16 @@ def register_model(run_id, name, alias, labels_dict):
     # Add Champion alias since it's the only model
     mlflow_client.set_registered_model_alias(name, alias, model_version.version)
 
+def set_served_model_env_file(run_id, env_file_path = SERVED_MODEL_ENV_FILE_PATH):
+    env_vars_lines = f'''
+RUN_ID={run_id}
+'''
+
+    # Open the file in write mode ('w') and write the line
+    with open(env_file_path, 'w') as file:
+        file.write(env_vars_lines)
+
+
 def retrain_model_by_run(model_run, train_df, val_df, is_validation_set_test):
     train_df, _, train_target_df, train_labels_dict, train_artifacts = data_prep.prep_training_datasets(train_df)
     val_df, _, val_target_df, _, _ = data_prep.prep_training_datasets(val_df)
@@ -118,6 +129,8 @@ def train_champion(champion_model_name, model_alias):
     
     retrained_champion_run_id, train_val_labels_dict = retrain_model_by_run(champion_run, train_val_df, test_df, is_validation_set_test = True)
     register_model(retrained_champion_run_id, champion_model_name, model_alias, train_val_labels_dict)
+
+    set_served_model_env_file(retrained_champion_run_id)
 
 if __name__ == "__main__":
     train_champion('starter_notebook_model', "Champion")
