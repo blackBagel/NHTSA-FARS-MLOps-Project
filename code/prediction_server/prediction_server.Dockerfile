@@ -9,7 +9,7 @@ COPY [ "Pipfile", "Pipfile.lock", "./" ]
 
 RUN pipenv install --system --deploy
 
-COPY [ "code/predict.py", "code/model.py", "./" ]
+COPY [ "code/prediction_server", "./" ]
 
 ENV MLFLOW_EXPERIMENT_ID=1
 ENV MLFLOW_BUCKET_PATH="gs://mlops_zoomcamp-mlflow-artifacts/artifacts"
