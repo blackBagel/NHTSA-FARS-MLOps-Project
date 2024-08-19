@@ -9,3 +9,17 @@ services:
       - ./secrets/prediction_server:/run/secrets:ro
     env_file: served_model_env_vars
     restart: always
+  mlflow:
+    build:
+      context: .
+      dockerfile: ./code/mlflow.dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data/mlflow:/home/mlflow/
+      - ./secrets/mlflow:/run/secrets:ro
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
