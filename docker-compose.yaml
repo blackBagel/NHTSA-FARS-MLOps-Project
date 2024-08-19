@@ -12,6 +12,7 @@ services:
       - ./secrets/mlflow:/run/secrets:ro
     networks:
       - app-network
+    restart: always
   prefect:
     build:
       context: .
@@ -22,6 +23,7 @@ services:
       - ./data/prefect:/database/
     networks:
       - app-network
+    restart: always
   accident-injury-datasets-updater:
     build:
       context: .
