@@ -1,4 +1,3 @@
-from update_train_val_test_data import update_model_datsets
 from all_models_retrainer import retrain_all_models
 from champion_trainer import train_champion
 from prefect import serve
