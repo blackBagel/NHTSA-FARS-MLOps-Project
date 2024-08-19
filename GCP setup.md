@@ -41,6 +41,10 @@ This guide will walk you through the process of opening a free-tier Google Cloud
      - Choose "Ubuntu" from the Operating System dropdown.
      - Select "Ubuntu 22.04 LTS" for the version.
      - Set the disk size to 50 GB.
+   - **Identity and API access**:
+        - Under "Access Scope", Choose "Set access for each API":
+          - Set "Storage" as **"Read Write"**
+          - Keep all the rest of the settings as is 
    - **Firewall Settings**:
      - Optionally, check "Allow HTTP traffic" and "Allow HTTPS traffic" if you need to serve web traffic.
    - **SSH Keys**:
