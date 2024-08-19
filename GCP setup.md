@@ -68,17 +68,25 @@ This guide will walk you through the process of opening a free-tier Google Cloud
 ## Step 5: Create a Service Account
 
 1. **Navigate to IAM & Admin**: From the hamburger menu (≡), go to "IAM & Admin" and select "Service accounts."
-2. **Create a Service Account**:
-   - Click "Create Service Account."
-   - **Service Account Details**:
-     - Enter a name for your service account.
-     - Optionally, add a description.
-   - **Service Account Permissions**:
-     - Under "Grant this service account access to project," choose "Storage Object Viewer" to allow the service account to read objects in the bucket.
-   - **Create Key**:
-     - Before finalizing, click "Create Key."
-     - Choose the key type as JSON and download the key file. This file contains the credentials needed for your applications to authenticate with Google Cloud services using the service account.
-   - **Finalize**: Click "Done."
+2. **Create Service Accounts**:
+  - **For MLflow**:
+    - Click "Create Service Account."
+    - **Service Account Details**:
+      - Enter a name for your service account.
+      - Optionally, add a description.
+    - **Create Key**:
+      - Before finalizing, click "Create Key."
+      - Choose the key type as JSON and download the key file. This file contains the credentials needed for your applications to authenticate with Google Cloud services using the service account.
+    - **Finalize**: Click "Done."
+  - **For the Prediction Server**:
+    - Click "Create Service Account."
+    - **Service Account Details**:
+      - Enter a name for your service account.
+      - Optionally, add a description.
+    - **Create Key**:
+      - Before finalizing, click "Create Key."
+      - Choose the key type as JSON and download the key file. This file contains the credentials needed for your applications to authenticate with Google Cloud services using the service account.
+    - **Finalize**: Click "Done."
 
 ## Step 6: Grant Read Permissions to the Service Account for the Bucket
 
@@ -86,9 +94,14 @@ This guide will walk you through the process of opening a free-tier Google Cloud
 2. **Manage Permissions**:
    - Click on the "Permissions" tab.
    - Click "Add" to add a new member.
-   - **Enter the Service Account**: In the "New members" field, enter the email address of the service account you created.
-   - **Assign a Role**: From the "Select a role" dropdown, choose "Storage Object Viewer."
-   - **Save**: Click "Save" to apply the permissions.
+   - For the MLflow Service Account:
+    - **Enter the Service Account**: In the "New members" field, enter the email address of the service account you created for mlflow.
+    - **Assign a Role**: From the "Select a role" dropdown, choose "Storage Object Admin."
+    - **Save**: Click "Save" to apply the permissions.
+  - For the Prediction Server Service Account:
+    - **Enter the Service Account**: In the "New members" field, enter the email address of the service account you created for mlflow.
+    - **Assign a Role**: From the "Select a role" dropdown, choose "Storage Object Viewer"
+    - **Save**: Click "Save" to apply the permissions.
 
 ## Step 7: Test the Setup
 
@@ -97,9 +110,8 @@ This guide will walk you through the process of opening a free-tier Google Cloud
      ```bash
      ssh -i ~/.ssh/gcp_ssh_key username@external-ip-address
      ```
-2. **Use the Service Account Key**:
+2. **Upload the Service Account Key**:
    - Upload the service account key JSON file to your VM.
-   - Install the Google Cloud SDK on your VM and authenticate using the service account key if needed.
 3. **Verify Bucket Access**:
    - Use the `gsutil` command to list objects in the bucket:
      ```bash

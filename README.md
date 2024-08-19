@@ -14,7 +14,7 @@ The model is built using the "Person" data file from the FARS database, which in
 You can read more about the project and the data at the foloowing links:
   - [Project Home](https://www.nhtsa.gov/research-data/fatality-analysis-reporting-system-fars)
   - [Data Manual](https://crashstats.nhtsa.dot.gov/Api/Public/ViewPublication/813556)
-  - [File Server](https://www.nhtsa.gov/research-data/fatality-analysis-reporting-system-fars)
+  - [File Server](https://www.nhtsa.gov/file-downloads?p=nhtsa/downloads/FARS/)
 
 There's no need to manually download data files. I use a download script in the project setup as described in the "Running the Project" section
 
@@ -119,7 +119,19 @@ Once you've set up your VM, service accounts and storage bucket you can SSH into
     ./download_data.sh
     ```
 
-3. **Copy your service account access keys**
+3. **Set the bucket path**:
+    Go to the dockerfile for mlflow and set the default artifact root parameter to the path of your storage bucket:
+    ```dockerfile
+    CMD [ \
+            "mlflow", "server", \
+            "--backend-store-uri", "sqlite:///home/mlflow/mlflow.db", \
+            "--default-artifact-root", "gs://PATH_TO_YOUR_BUCKET", \
+            "--host", "0.0.0.0", \
+            "--port", "5000" \
+        ]
+    ```
+
+4. **Copy your service account access keys**
     - Don't forget to give your files meaningful names!
     ```
     mkdir -p secrets
@@ -129,12 +141,13 @@ Once you've set up your VM, service accounts and storage bucket you can SSH into
         - `mlflow`
         - `accident-injury-prediction-service`
 
-4. **Now you're ready to start up the project! Deploy all the containers using `docker-compose`**:
+5. **Start**:
+    Now you're ready to start up the project! Deploy all the containers using `docker-compose`
     ```bash
     docker-compose up
     ```
 
-5. **Port forward**
+6. **Port forward**
     - Port forward the following port:
         - 5000 - Mlflow
         - 4200 - Prefect Server
@@ -146,7 +159,7 @@ Once you've set up your VM, service accounts and storage bucket you can SSH into
 The ML pipeline of the project is run using prefect scheduled deployments.
 By default the deployments run weekly since I felt this is a decent time for data accumulation that is worth retraining.
 
-### Services Overview
+### Container Services Overview
 
 #### 1. **mlflow**
    - **Purpose:** Manages the tracking and registry of machine learning experiments.
@@ -218,4 +231,4 @@ The evaluation metric we'll use for our model will be a weighted average of reca
 The more severe an injury gets, the more important it is to decrease the amount of False Negative predictions of it, since the price of an error becomes more severe. 
 Therefore, it makes sense to calculate the recall score of each injury class separately and then calculate an overall weighted average that gives higher importance to more severe injuries.
 
-For the sake of this exercise, we'll focus for now only on this metric as the only maximising metric and not take into account other satisfising factors like the predition speed of our model
+For the sake of this exercise, we'll focus only on this metric as the only maximising metric and not take into account other satisfising factors like the prediction speed of our model
