@@ -30,7 +30,15 @@ services:
       - ./data/prefect:/database/
     networks:
       - app-network
-
+  accident-injury-model-trainer:
+    build:
+      context: .
+      dockerfile: ./code/model_training/model_trainer.dockerfile
+    volumes:
+      - ./data/datasets/for_model:/datasets:ro
+    networks:
+      - app-network
+    restart: always
 networks:
   app-network:
     driver: bridge
