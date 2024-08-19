@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from prefect import flow, task, get_run_logger
 from prefect.tasks import task_input_hash
 
-DATA_FILE_NAME = 'person.csv'
-DATASETS_DIR_RELATIVE_PATH = 'data/datasets'
+DATA_FILE_NAME = os.getenv('DATA_FILE_NAME')
+DATASETS_DIR_RELATIVE_PATH = os.getenv('DATASETS_DIR_RELATIVE_PATH')
 
 def get_datasets_dir():
     current_path = os.path.realpath(__file__)

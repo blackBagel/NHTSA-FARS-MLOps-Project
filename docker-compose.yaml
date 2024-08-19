@@ -30,6 +30,15 @@ services:
       - ./data/prefect:/database/
     networks:
       - app-network
+  accident-injury-datasets-updater:
+    build:
+      context: .
+      dockerfile: ./code/datasets_update/datasets_updater.dockerfile
+    volumes:
+      - ./data/datasets/:/datasets
+    networks:
+      - app-network
+    restart: always
   accident-injury-model-trainer:
     build:
       context: .
