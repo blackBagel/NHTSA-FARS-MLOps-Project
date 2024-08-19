@@ -4,15 +4,16 @@ from datetime import datetime, timedelta
 from prefect import flow, task, get_run_logger
 from prefect.tasks import task_input_hash
 
-DATA_FILE_NAME = os.getenv('DATA_FILE_NAME')
-DATASETS_DIR_RELATIVE_PATH = os.getenv('DATASETS_DIR_RELATIVE_PATH')
+SOURCE_DATA_FILE_NAME = os.getenv('DATA_FILE_NAME', 'person.csv')
+# DATASETS_DIR_RELATIVE_PATH = os.getenv('DATASETS_DIR_RELATIVE_PATH')
+DATASETS_DIR_PATH = os.getenv('DATASETS_DIR_PATH')
 
-def get_datasets_dir():
-    current_path = os.path.realpath(__file__)
-    parent_dir = os.path.dirname(os.path.dirname(current_path))
-    datasets_dir = os.path.join(parent_dir, DATASETS_DIR_RELATIVE_PATH)
+# def get_datasets_dir():
+#     current_path = os.path.realpath(__file__)
+#     parent_dir = os.path.dirname(os.path.dirname(current_path))
+#     datasets_dir = os.path.join(parent_dir, DATASETS_DIR_RELATIVE_PATH)
 
-    return datasets_dir
+#     return datasets_dir
 
 def load_and_process_csv(year, day, month):
     date_str = f"{year}-{month:02d}-{day:02d}"
@@ -25,7 +26,7 @@ def filter_data(df, start_date, end_date):
 
 def process_files(datasets_dir, year_dirs):
     dfs = []
-    file = DATA_FILE_NAME
+    file = SOURCE_DATA_FILE_NAME
 
     for year_dir in year_dirs:
         file_path = os.path.join(datasets_dir, str(year_dir), file)
@@ -66,7 +67,7 @@ def update_model_datsets():
     test_end = today - timedelta(weeks=test_end_weeks_delta)
     
     # Load and combine data from all directories
-    datasets_dir = get_datasets_dir()
+    datasets_dir = DATASETS_DIR_PATH
     year_dirs = set([train_start.year, train_end.year, validation_start.year, validation_end.year, test_start.year, test_end.year])
     combined_data = process_files(datasets_dir=datasets_dir, year_dirs=year_dirs)
     

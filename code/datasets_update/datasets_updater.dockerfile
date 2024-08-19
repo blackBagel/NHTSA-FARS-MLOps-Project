@@ -5,8 +5,8 @@ RUN pip install -U pandas prefect
 
 WORKDIR /app
 
-ENV FILE_NAME = 'person.csv'
-ENV DATASETS_DIR_RELATIVE_PATH = '/datasets'
+ENV SOURCE_DATA_FILE_NAME='person.csv'
+ENV DATASETS_DIR_PATH='/datasets'
 ENV PREFECT_API_URL="http://prefect:4200/api"
 
 COPY [ "code/datasets_update", "./" ]
