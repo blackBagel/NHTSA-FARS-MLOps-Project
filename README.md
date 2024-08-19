@@ -105,7 +105,7 @@ Once you've set up your VM, service accounts and storage bucket you can SSH into
      Log out and log back in to apply this change.
    - Ensure your firewall allows Docker to function correctly, especially if you plan on exposing ports.
 
-### Running the project
+### Deploying the project
 
 1. **Fetch the project from github**:
    ```bash
@@ -140,3 +140,82 @@ Once you've set up your VM, service accounts and storage bucket you can SSH into
         - 4200 - Prefect Server
     - You can deploy and run the different project components using the prefect UI at: `http://localhost:4200`
     - And see your runs at the mlflow ui: `http://localhost:5000`
+
+## Project Workflow
+
+The ML pipeline of the project is run using prefect scheduled deployments.
+By default the deployments run weekly since I felt this is a decent time for data accumulation that is worth retraining.
+
+### Services Overview
+
+#### 1. **mlflow**
+   - **Purpose:** Manages the tracking and registry of machine learning experiments.
+   - **Ports:** Exposes port `5000` for accessing the MLflow tracking UI.
+   - **Volumes:** 
+     - `./data/mlflow:/home/mlflow/`: Stores MLflow data such as experiment logs and models.
+     - `./secrets/mlflow:/run/secrets:ro`: Provides secrets, including credentials for Google Cloud.
+   - **Environment:** Utilizes a Google service account for authentication with cloud services.
+   - **Networks:** Connected to the `app-network`.
+   - **Restart Policy:** Always restarts to ensure availability.
+
+#### 2. **prefect**
+   - **Purpose:** Orchestrates workflows and manages the execution of data pipelines.
+   - **Ports:** Exposes port `4200` for accessing the Prefect UI.
+   - **Volumes:** 
+     - `./data/prefect:/database/`: Stores Prefect's state and configuration data.
+   - **Networks:** Connected to the `app-network`.
+   - **Restart Policy:** Always restarts to maintain service continuity.
+
+#### 3. **accident-injury-datasets-updater**
+   - **Purpose:** Updates and processes datasets related to accident and injury statistics.
+   - **Volumes:** 
+     - `./data/datasets/:/datasets`: Stores the datasets that are updated by the service.
+   - **Networks:** Connected to the `app-network`.
+   - **Restart Policy:** Always restarts to keep the data up-to-date.
+
+#### 4. **accident-injury-model-trainer**
+   - **Purpose:** Trains machine learning models using the processed datasets.
+   - **Volumes:** 
+     - `./data/datasets/for_models:/datasets:ro`: Provides read-only access to datasets for model training.
+     - `./served_model_env_vars:/served_model_env_vars`: Stores environment variables for model serving.
+   - **Networks:** Connected to the `app-network`.
+   - **Restart Policy:** Always restarts to ensure continuous model training.
+
+#### 5. **accident-injury-prediction-service**
+   - **Purpose:** Serves the trained machine learning models for making predictions.
+   - **Ports:** Exposes port `9696` for accessing the prediction service API.
+   - **Volumes:** 
+     - `./secrets/prediction_server:/run/secrets:ro`: Provides secrets, including credentials for Google Cloud.
+   - **Environment:** Uses environment variables defined in `served_model_env_vars` for configuration.
+   - **Restart Policy:** Always restarts to maintain service availability.
+
+### Network Configuration
+
+#### **app-network**
+   - **Driver:** Uses the `bridge` driver for container networking, allowing services to communicate with each other securely within the Docker environment.
+
+### Prefect Deployments:
+
+- #### model_datasets_updater
+  Creates new train, validation and test data every week.
+
+  The purpose of this deployment is to simulate a live data stream using our static FARS data files
+
+- #### candidate_models_train_deployment
+  Trains many different sklearn pipelines with different models and parameters on the training data.
+
+  The purpose of this deployment is to check whether our champion model's performance deteriorates compared to other models
+
+- #### champion_model_retrain_deployment
+  Retrains the champion model every week on the most up to date data, monitors its' performance and creates a challenger model in case the champion's performance on the training data deteriorates
+
+  The purpose of this deployment is to keep the challenger model up to date and monitor it regularly
+
+### Model Evaluation
+
+The evaluation metric we'll use for our model will be a weighted average of recall per class.
+
+The more severe an injury gets, the more important it is to decrease the amount of False Negative predictions of it, since the price of an error becomes more severe. 
+Therefore, it makes sense to calculate the recall score of each injury class separately and then calculate an overall weighted average that gives higher importance to more severe injuries.
+
+For the sake of this exercise, we'll focus for now only on this metric as the only maximising metric and not take into account other satisfising factors like the predition speed of our model
