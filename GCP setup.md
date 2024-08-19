@@ -99,7 +99,7 @@ This guide will walk you through the process of opening a free-tier Google Cloud
     - **Assign a Role**: From the "Select a role" dropdown, choose "Storage Object Admin."
     - **Save**: Click "Save" to apply the permissions.
   - For the Prediction Server Service Account:
-    - **Enter the Service Account**: In the "New members" field, enter the email address of the service account you created for mlflow.
+    - **Enter the Service Account**: In the "New members" field, enter the email address of the service account you created for the Prediction Server.
     - **Assign a Role**: From the "Select a role" dropdown, choose "Storage Object Viewer"
     - **Save**: Click "Save" to apply the permissions.
 
