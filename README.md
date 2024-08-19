@@ -10,7 +10,15 @@ Motor vehicle accidents are a leading cause of injury and death globally. The se
 
 ## Data Description
 
-The model is built using the "Person" data file from the FARS database, which includes detailed records of individuals involved in motor vehicle accidents. The data covers both motorists and non-motorists and includes the following key features:
+The model is built using the "Person" data file from the FARS database, which includes detailed records of individuals involved in motor vehicle accidents. 
+You can read more about the project and the data at the foloowing links:
+  - [Project Home](https://www.nhtsa.gov/research-data/fatality-analysis-reporting-system-fars)
+  - [Data Manual](https://crashstats.nhtsa.dot.gov/Api/Public/ViewPublication/813556)
+  - [File Server](https://www.nhtsa.gov/research-data/fatality-analysis-reporting-system-fars)
+
+There's no need to manually download data files. I use a download script in the project setup as described in the "Running the Project" section
+
+The Person.csv data covers both motorists and non-motorists and includes the following key features:
 
 - **Age**: The age of the individual involved in the accident.
 - **Sex/Gender**: The gender of the individual.
