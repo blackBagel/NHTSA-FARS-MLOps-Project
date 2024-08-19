@@ -1,14 +1,6 @@
 version: '3.8'
 
 services:
-  accident-injury-prediction-service:
-    image: accident-injury-prediction-service:v1
-    ports:
-      - "9696:9696"
-    volumes:
-      - ./secrets/prediction_server:/run/secrets:ro
-    env_file: served_model_env_vars
-    restart: always
   mlflow:
     build:
       context: .
@@ -47,6 +39,14 @@ services:
       - ./data/datasets/for_model:/datasets:ro
     networks:
       - app-network
+    restart: always
+  accident-injury-prediction-service:
+    image: accident-injury-prediction-service:v1
+    ports:
+      - "9696:9696"
+    volumes:
+      - ./secrets/prediction_server:/run/secrets:ro
+    env_file: served_model_env_vars
     restart: always
 networks:
   app-network:
