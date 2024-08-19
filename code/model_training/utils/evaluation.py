@@ -3,8 +3,8 @@ from sklearn.metrics import recall_score
 import mlflow.pyfunc
 import numpy as np
 from sklearn import metrics
-import matplotlib.pyplot as plt
-import seaborn as sns
+# import matplotlib.pyplot as plt
+# import seaborn as sns
 
 EVALUATION_METRIC = 'weighted_recall'
 EVALUATION_METRIC_SIGNIFICANT_DIFF = 0.05
@@ -55,30 +55,30 @@ def weighted_recall_score(true_labels: pd.Series, predicted_labels: pd.Series) -
 
 
 
-def plot_confusion_matrix(test_true_labels, test_predictions, textual_labels):
+# def plot_confusion_matrix(test_true_labels, test_predictions, textual_labels):
 
-    translated_test_target_df = test_true_labels.map(textual_labels)
+#     translated_test_target_df = test_true_labels.map(textual_labels)
 
-    # Create a vectorized function that applies the dictionary mapping
-    vectorized_map = np.vectorize(textual_labels.get)
+#     # Create a vectorized function that applies the dictionary mapping
+#     vectorized_map = np.vectorize(textual_labels.get)
 
-    # Translate the numbers in the array to their corresponding strings using the vectorized function
-    translated_test_predictions = vectorized_map(test_predictions)
+#     # Translate the numbers in the array to their corresponding strings using the vectorized function
+#     translated_test_predictions = vectorized_map(test_predictions)
 
-    # Define the order of labels according to their numerical values
-    label_order = [textual_labels[key] for key in sorted(textual_labels.keys())]
+#     # Define the order of labels according to their numerical values
+#     label_order = [textual_labels[key] for key in sorted(textual_labels.keys())]
 
-    confusion_matrix = metrics.confusion_matrix(translated_test_target_df, translated_test_predictions, labels=label_order)
+#     confusion_matrix = metrics.confusion_matrix(translated_test_target_df, translated_test_predictions, labels=label_order)
 
 
-    plt.figure(figsize=(10, 7))
-    sns.heatmap(confusion_matrix, annot=True, fmt='d', cmap='Blues',
-                xticklabels=label_order, 
-                yticklabels=label_order)
-    plt.xlabel('Predicted Labels')
-    plt.ylabel('Actual Labels')
-    plt.title('Confusion Matrix')
-    plt.show()
+#     plt.figure(figsize=(10, 7))
+#     sns.heatmap(confusion_matrix, annot=True, fmt='d', cmap='Blues',
+#                 xticklabels=label_order, 
+#                 yticklabels=label_order)
+#     plt.xlabel('Predicted Labels')
+#     plt.ylabel('Actual Labels')
+#     plt.title('Confusion Matrix')
+#     plt.show()
 
 
 # Example usage code
