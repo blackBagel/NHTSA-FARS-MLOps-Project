@@ -36,7 +36,8 @@ services:
       context: .
       dockerfile: ./code/model_training/model_trainer.dockerfile
     volumes:
-      - ./data/datasets/for_model:/datasets:ro
+      - ./data/datasets/for_models:/datasets:ro
+      - ./served_model_env_vars:/served_model_env_vars
     networks:
       - app-network
     restart: always

@@ -11,7 +11,7 @@ from prefect import flow, task, get_run_logger
 from prefect.tasks import task_input_hash
 
 mlflow_client = MlflowClient()
-SERVED_MODEL_ENV_FILE_PATH = os.path.join(PROJECT_PATH, 'served_model_env_vars')
+SERVED_MODEL_ENV_FILE_PATH = os.getenv('SERVED_MODEL_ENV_FILE_PATH' , os.path.join(PROJECT_PATH, 'served_model_env_vars'))
 CHAMPION_MODEL_NAME = os.getenv('CHAMPION_MODEL_NAME')
 CHAMPION_MODEL_ALIAS = os.getenv('CHAMPION_MODEL_ALIAS')
 
@@ -121,7 +121,7 @@ def retrain_model_by_run(model_run, train_df, val_df, is_validation_set_test):
     return retrained_model_run_id, train_labels_dict
 
 @flow(retries=3, retry_delay_seconds=60)
-def train_champion(champion_model_name: str = CHAMPION_MODEL_NAME, registered_model_alias: str = CHAMPION_MODEL_ALIAS):
+def train_champion(champion_model_name: str = CHAMPION_MODEL_NAME, registered_model_alias: str = CHAMPION_MODEL_ALIAS, served_model_env_vars_file_path: str = SERVED_MODEL_ENV_FILE_PATH):
     train_df, val_df, test_df = get_train_val_test_dfs()
     train_val_df = pd.concat([train_df, val_df], ignore_index=True)
 
@@ -139,7 +139,7 @@ def train_champion(champion_model_name: str = CHAMPION_MODEL_NAME, registered_mo
     retrained_champion_run_id, train_val_labels_dict = retrain_model_by_run(champion_run, train_val_df, test_df, is_validation_set_test = True)
     register_model(retrained_champion_run_id, champion_model_name, registered_model_alias, train_val_labels_dict)
 
-    set_served_model_env_file(retrained_champion_run_id)
+    set_served_model_env_file(retrained_champion_run_id, env_file_path=served_model_env_vars_file_path)
 
 # if __name__ == "__main__":
 #     train_champion.serve(
