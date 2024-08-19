@@ -15,6 +15,7 @@ MODELS_DATASETS_PATH = os.getenv('MODELS_DATASETS_PATH',
 TRAIN_FILENAME = os.getenv('TRAIN_FILENAME', 'train.csv')
 VALIDATION_FILENAME = os.getenv('VALIDATION_FILENAME', 'validation.csv')
 TEST_FILENAME = os.getenv('TEST_FILENAME', 'test.csv')
+MODEL_ARTIFACT_PATH = os.getenv('MODEL_ARTIFACT_PATH')
 
 # Will be set using the MLFLOW_TRACKING_URI 
 # mlflow.set_tracking_uri("http://127.0.0.1:5000")
@@ -40,7 +41,7 @@ def get_train_val_test_dfs():
 @task(cache_key_fn=task_input_hash, 
       cache_expiration=timedelta(hours=1),
       )
-def log_pipeline_with_mlflow(model_name, model, model_params, preprocess_params, artifacts, X_train, X_val, y_train, y_val, model_artifact_path = 'model', is_validation_set_test = False):
+def log_pipeline_with_mlflow(model_name, model, model_params, preprocess_params, artifacts, X_train, X_val, y_train, y_val, model_artifact_path = MODEL_ARTIFACT_PATH, is_validation_set_test = False):
     """
     Logs a machine learning pipeline to MLflow, including model parameters, metrics, and artifacts.
 

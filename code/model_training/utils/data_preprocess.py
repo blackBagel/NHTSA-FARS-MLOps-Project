@@ -1,5 +1,8 @@
+import os
 from sklearn_pandas import DataFrameMapper, gen_features
 from sklearn.base import TransformerMixin
+
+MODEL_LABELS_DICT_FILE=os.getenv('MODEL_LABELS_DICT_FILE')
 
 INVESTIGATED_COLUMNS = [
     'ST_CASE', 
@@ -174,7 +177,7 @@ def prep_training_datasets(df, index_columns = INDEX_COLUMNS):
         { 
             'type': 'dict',
             'object': accident_result_names,
-            'file_name': 'NHTSA_FARS_labels_for_target.json',
+            'file_name': MODEL_LABELS_DICT_FILE,
         },
         # { 
         #     'type': 'file',
