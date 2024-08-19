@@ -23,5 +23,6 @@ ENV MLFLOW_TRACKING_URI="http://mlflow:5000"
 ENV PREFECT_API_URL="http://prefect:4200/api"
 ENV CHAMPION_MODEL_NAME="starter_notebook_model"
 ENV CHAMPION_MODEL_ALIAS="Champion"
+ENV SERVED_MODEL_ENV_FILE_PATH='/served_model_env_vars'
 
 ENTRYPOINT [ "python", "entrypoint.py" ]

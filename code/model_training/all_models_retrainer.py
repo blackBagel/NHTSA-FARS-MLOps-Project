@@ -22,7 +22,7 @@ def retrain_all_models():
     models = ready_pipelines.get_possible_models_for_pipeline()
 
     train_and_log_pipelines(models = models,
-                            model_pipe_step_name = ready_pipelines.MODEL_PIPE_STEP_NAME,
+                            pipe_model_step_name = ready_pipelines.MODEL_PIPE_STEP_NAME,
                             data_prep_steps = data_prep_steps,
                             preprocessing_params = preprocessing_params,
                             artifacts = train_artifacts,
