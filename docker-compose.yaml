@@ -20,6 +20,17 @@ services:
       - ./secrets/mlflow:/run/secrets:ro
     networks:
       - app-network
+  prefect:
+    build:
+      context: .
+      dockerfile: ./code/prefect.dockerfile
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./data/prefect:/database/
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
