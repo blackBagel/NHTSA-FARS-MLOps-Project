@@ -2,7 +2,7 @@ FROM python:3.11.9-slim
 
 RUN pip install mlflow==2.14.2 google-cloud-storage==2.18.1
 
-ENV GOOGLE_APPLICATION_CREDENTIALS="/run/secrets/mlops-zoomcamp-mlflow-SA-423615-aa494484f08e.json"
+# ENV GOOGLE_APPLICATION_CREDENTIALS="/run/secrets/mlops-zoomcamp-mlflow-SA-423615-aa494484f08e.json"
 
 EXPOSE 5000
 

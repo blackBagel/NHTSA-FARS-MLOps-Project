@@ -10,6 +10,8 @@ services:
     volumes:
       - ./data/mlflow:/home/mlflow/
       - ./secrets/mlflow:/run/secrets:ro
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/mlops-zoomcamp-mlflow-SA-423615-aa494484f08e.json
     networks:
       - app-network
     restart: always
@@ -50,6 +52,8 @@ services:
     volumes:
       - ./secrets/prediction_server:/run/secrets:ro
     env_file: served_model_env_vars
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/mlops-zoomcamp-prediction-server-SA-423615-33e43567693d.json
     restart: always
 networks:
   app-network:
