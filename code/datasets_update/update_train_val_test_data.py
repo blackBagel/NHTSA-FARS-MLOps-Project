@@ -16,15 +16,27 @@ DATASETS_DIR_PATH = os.getenv('DATASETS_DIR_PATH')
 #     return datasets_dir
 
 def load_and_process_csv(year, day, month):
+    '''
+    A mapped func that returns a date string using its' params
+    '''
     date_str = f"{year}-{month:02d}-{day:02d}"
     return datetime.strptime(date_str, "%Y-%m-%d")
 
 def filter_data(df, start_date, end_date):
+    '''
+    Returns the df rows that fit the date range
+    '''
     df_copy = df.copy()
-    df_copy.loc[:, 'DATE'] = df_copy.apply(lambda row: load_and_process_csv(row['YEAR'], row['DAY'], row['MONTH']), axis=1)
+    df_copy.loc[:, 'DATE'] = df_copy.apply(lambda row: 
+                                           load_and_process_csv(row['YEAR'],
+                                                                row['DAY'],
+                                                                row['MONTH']), axis=1)
     return df_copy.loc[(df_copy['DATE'] >= start_date) & (df_copy['DATE'] < end_date), :].copy()
 
 def process_files(datasets_dir, year_dirs):
+    '''
+    Returns a df containing a concatination of all the dfs in the year dirs
+    '''
     dfs = []
     file = SOURCE_DATA_FILE_NAME
 
@@ -41,6 +53,9 @@ def process_files(datasets_dir, year_dirs):
       cache_expiration=timedelta(hours=1),
       )
 def save_data(df, start_date, end_date, filename, logger, dataset_name):
+    '''
+    Saves the new filtered df to a csv file
+    '''
     filtered_data = filter_data(df.copy(), start_date, end_date)
     filtered_data = filtered_data.drop(columns=['DATE'])  # Drop auxiliary columns
     filtered_data.to_csv(filename, index=False)
@@ -50,6 +65,9 @@ def save_data(df, start_date, end_date, filename, logger, dataset_name):
 
 @flow(retries=3, retry_delay_seconds=60)
 def update_model_datsets(): 
+    '''
+    Creates new model datasets according to the appropriate time range
+    '''
     # Date ranges
     today = datetime.today()
     train_start_weeks_delta = 156 # 3 years + 2 weeks ago
@@ -58,17 +76,22 @@ def update_model_datsets():
     train_start = today - timedelta(weeks=train_start_weeks_delta) 
     train_end = today - timedelta(weeks=train_end_weeks_delta)  
     
-    validation_end_weeks_delta = 104 + 1 # 2 years + 1 weeks ago
-    validation_start = train_end
-    validation_end = today - timedelta(weeks=validation_end_weeks_delta)
+    val_end_weeks_delta = 104 + 1 # 2 years + 1 weeks ago
+    val_start = train_end
+    val_end = today - timedelta(weeks=val_end_weeks_delta)
     
     test_end_weeks_delta = 104 # 2 years
-    test_start = validation_end
+    test_start = val_end
     test_end = today - timedelta(weeks=test_end_weeks_delta)
     
     # Load and combine data from all directories
     datasets_dir = DATASETS_DIR_PATH
-    year_dirs = set([train_start.year, train_end.year, validation_start.year, validation_end.year, test_start.year, test_end.year])
+    year_dirs = set([train_start.year, 
+                     train_end.year,
+                     val_start.year,
+                     val_end.year,
+                     test_start.year,
+                     test_end.year,])
     combined_data = process_files(datasets_dir=datasets_dir, year_dirs=year_dirs)
     
     # Save to files
@@ -80,7 +103,7 @@ def update_model_datsets():
     logger = get_run_logger()
 
     save_data.submit(combined_data, train_start, train_end, train_path, logger, 'train')
-    save_data.submit(combined_data, validation_start, validation_end, validation_path, logger, 'validation')
+    save_data.submit(combined_data, val_start, val_end, validation_path, logger, 'validation')
     save_data.submit(combined_data, test_start, test_end, test_path, logger, 'test')
 
 if __name__ == "__main__":
