@@ -144,7 +144,7 @@ Once you've set up your VM, service accounts and storage bucket you can SSH into
 5. **Start**:
     Now you're ready to start up the project! Deploy all the containers using `docker-compose`
     ```bash
-    docker-compose up
+    docker-compose up --build
     ```
 
 6. **Port forward**
