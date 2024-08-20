@@ -30,7 +30,7 @@ def retrain_all_models():
                             X_val = val_df,
                             y_train = train_target_df,
                             y_val = val_target_df,
-                            is_validation_set_test = False)
+                            is_validation_set_test = False,)
 
 # if __name__ == "__main__":
 #     retrain_all_models.serve(
